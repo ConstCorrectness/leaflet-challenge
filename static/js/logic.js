@@ -4,11 +4,6 @@ let basemap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", 
 });
 
 
-
-// OPTIONAL: Step 2
-// Create the 'street' tile layer as a second background of the map
-
-
 // Create the map object with center and zoom options.
 let map = L.map("map", {
   center: [37.09, -95.71],
