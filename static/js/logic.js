@@ -100,12 +100,12 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     // Initialize depth intervals and colors for the legend
     let depthIntervals = [0, 10, 30, 50, 70, 90];
     let colors = [
-      "#98ee00",
-      "#d4ee00",
-      "#eecc00",
-      "#ee9c00",
-      "#ea822c",
-      "#ea2c2c"
+      "#98ff00",
+      "#d4ff00",
+      "#efff00",
+      "#efff00",
+      "#ebff2c",
+      "#ebff2c"
     ];
 
 
@@ -115,6 +115,8 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
         "<i style='background: " + colors[i] + "'></i> " +
         depthIntervals[i] + (depthIntervals[i + 1] ? "&ndash;" + depthIntervals[i + 1] + "<br>" : "+");
     }
+
+
     div.innerHTML += "<i style='background: #000000'></i> 0+";
     div.innerHTML += "<br><i style='background: #ffffff'></i> No Data";
     div.innerHTML += "<br><i style='background: #000000'></i> No Data";
@@ -123,8 +125,6 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
 
     // Add a title to the legend
     div.innerHTML += "<h4>Depth (km)</h4>";
-
-  
     return div;
   };
 
@@ -135,9 +135,37 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
   // Make a request to get our Tectonic Plate geoJSON data.
   d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json").then(function (plate_data) {
     // Save the geoJSON data, along with style information, to the tectonic_plates layer.
-
+    L.geoJson(plate_data, {
+      color: "#ff6500",
+      weight: 2,
+      opacity: 0.65
+    }).addTo(map);
 
     // Then add the tectonic_plates layer to the map.
 
+    // OPTIONAL: Step 2
+    // Create a new layer group for the tectonic plates.
+    let tectonic_plates = L.layerGroup();
+
+    // Add the tectonic_plates layer to the map.
+    tectonic_plates.addTo(map);
+
+
+    // Create an object that contains the overlays.
+    let overlays = {
+      "Earthquakes": L.geoJson(data, {
+        pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng);
+        },
+        style: styleInfo,
+        onEachFeature: function (feature, layer) {
+          layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place + "<br>Depth: " + feature.geometry.coordinates[2]);
+        }
+      }),
+      "Tectonic Plates": tectonic_plates
+    };
+
+    // Add the tectonic_plates layer to the overlays object.
+    overlays["Tectonic Plates"] = tectonic_plates;
   });
 });
